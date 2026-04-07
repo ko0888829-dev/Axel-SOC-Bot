@@ -7,10 +7,13 @@ API_TOKEN = '8776335987:AAE98KHB9cD2Fpznsz93IMl5oK3oB94-D3I'
 ORDER_BOT_TOKEN = '8625083982:AAFgr2_WMtyr5eQjxKUZW2H5331NyXcbVAY' 
 ADMIN_ID = 8440467550 
 
+# Admin Username ကို @Axel_X_H သို့ ပြောင်းလဲသတ်မှတ်ခြင်း
+ADMIN_USERNAME = "Axel_X_H" 
+
 bot = telebot.TeleBot(API_TOKEN)
 order_bot = telebot.TeleBot(ORDER_BOT_TOKEN)
 
-# --- Price Lists (ဈေးနှုန်းစာရင်းများ) ---
+# --- Price Lists ---
 ML_PRICE = (
     "🎮 **MLBB Diamond Price List**\n"
     "━━━━━━━━━━━━━━━\n"
@@ -44,9 +47,8 @@ SOCIAL_PRICE = (
     "- Followers 1k - 25000ks\n\n"
     "✈️ **Telegram Services**\n"
     "- Channel Sub 1k - 15000ks\n"
-    "- Channel Sub 10k - 130,000ks (🎁 500 Sub Free)\n"
+    "- Channel Sub 10k - 130,000ks\n"
     "- Post Reaction 1k - 3000ks\n\n"
-    "⏳ Wait time: 5 Minutes\n"
     "✅ အာမခံ (ပြန်မကျ/တစ်သက်စာ)\n"
     "━━━━━━━━━━━━━━━"
 )
@@ -59,9 +61,11 @@ def show_main_menu(chat_id):
     markup = types.InlineKeyboardMarkup(row_width=1)
     markup.add(
         types.InlineKeyboardButton("💎 MLBB Diamonds ဝယ်ယူရန်", callback_data="list_mlbb"),
-        types.InlineKeyboardButton("🚀 Social Boost Services", callback_data="list_social")
+        types.InlineKeyboardButton("🚀 Social Boost Services", callback_data="list_social"),
+        # Link ကို @Axel_X_H သို့ ချိတ်ဆက်ပေးထားပါတယ်
+        types.InlineKeyboardButton("👨‍💻 Admin ဆက်သွယ်ရန်", url=f"https://t.me/{ADMIN_USERNAME}")
     )
-    bot.send_message(chat_id, "👋 **Axel SOC Shop မှ ကြိုဆိုပါတယ်** ✨\n\nဝယ်ယူလိုသည့် အမျိုးအစားကို ရွေးချယ်ပါ", reply_markup=markup, parse_mode="Markdown")
+    bot.send_message(chat_id, "👋 **Axel SOC Shop မှ ကြိုဆိုပါတယ်** ✨\n\nဝယ်ယူလိုသည့် အမျိုးအစားကို ရွေးချယ်ပါ သို့မဟုတ် Admin ကို ဆက်သွယ်ပါဗျ။", reply_markup=markup, parse_mode="Markdown")
 
 @bot.callback_query_handler(func=lambda call: True)
 def callback_query(call):
@@ -82,7 +86,7 @@ def callback_query(call):
         show_main_menu(call.message.chat.id)
         
     elif call.data == "order_process":
-        msg = bot.send_message(call.message.chat.id, "📸 ပြေစာ Screenshot ပုံကိုပို့ပြီး **Caption** မှာ ဝယ်ယူမည့်ပစ္စည်းအမျိုးအစားနှင့် ID/Link ကို တစ်ခါတည်းတွဲရေးပေးပါဗျ။")
+        msg = bot.send_message(call.message.chat.id, "📸 ပြေစာ Screenshot ပုံကိုပို့ပြီး **Caption** မှာ ID/Link ကို တစ်ခါတည်းတွဲရေးပေးပါဗျ။")
         bot.register_next_step_handler(msg, process_final_order)
 
 def process_final_order(message):
@@ -91,11 +95,11 @@ def process_final_order(message):
         bot.register_next_step_handler(msg, process_final_order)
         return
     
-    caption_text = message.caption if message.caption else "No details provided"
+    caption_text = message.caption if message.caption else "No details"
     admin_info = f"📩 **Order New!**\n👤 From: {message.from_user.first_name} (@{message.from_user.username})\n📝 Info: {caption_text}"
 
     try:
-        # ပုံကို download ဆွဲပြီး Admin Bot ကနေ တိုက်ရိုက်ပို့ခြင်း (File ID Error ကင်းဝေးစေရန်)
+        # File ID Error မတက်အောင် download ဆွဲပြီး ပို့ပေးခြင်း
         file_info = bot.get_file(message.photo[-1].file_id)
         downloaded_file = bot.download_file(file_info.file_path)
         
@@ -108,4 +112,3 @@ def process_final_order(message):
 
 if __name__ == '__main__':
     bot.infinity_polling()
-        
