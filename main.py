@@ -36,8 +36,7 @@ ML_PRICE = (
     "💎 250+250 - 19000ks\n"
     "💎 500+500 - 38000ks\n"
     "Weekly pass - 6500ks\n"
-    "━━━━━━━━━━━━━━━\n"
-    "diamond 1kနှင့်အထက်ဝယ်ယူရန် Contact Admin"
+    "━━━━━━━━━━━━━━━"
 )
 
 SOCIAL_PRICE = (
