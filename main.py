@@ -37,7 +37,7 @@ ML_PRICE = (
     "💎 500+500 - 38000ks\n"
     "Weekly pass - 6500ks\n"
     "━━━━━━━━━━━━━━━"
-    "diamond 1kနှင့်အထက်ဝယ်ယူရန်adminသို့ဆက်သွယ်ပါ\n"
+    "diamond 1kနှင့်အထက် ဝယ်ယူရန် admin သို့ဆက်သွယ်ပါ"
 )
 
 SOCIAL_PRICE = (
@@ -110,7 +110,7 @@ def process_final_order(message):
         photo_stream = io.BytesIO(downloaded_file)
         order_bot.send_photo(ADMIN_ID, photo_stream, caption=admin_info)
         
-        bot.send_message(message.chat.id, "ဝယ်ယူအားပေးမှုကို ကျေးဇူးအထူတင်ရှိပါသည်😘")
+        bot.send_message(message.chat.id, "ဝယ်ယူအားပေးမှုကို ကျေးဇူးအထူးတင်ရှိပါသည်😘")
     except Exception as e:
         bot.send_message(message.chat.id, f"⚠️ Error: {str(e)}")
 
