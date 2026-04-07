@@ -3,16 +3,14 @@ from telebot import types
 
 # --- Configuration ---
 API_TOKEN = '8776335987:AAE98KHB9cD2Fpznsz93IMl5oK3oB94-D3I' # User သုံးမဲ့ Bot
-ORDER_BOT_TOKEN = '8649013071:AAFMtmBe0r6wLvyqhxn0ggctoy6Tep9Gh4E' # Order လက်ခံမဲ့ Bot
+ORDER_BOT_TOKEN = '8625083982:AAFgr2_WMtyr5eQjxKUZW2H5331NyXcbVAY' # Order လက်ခံမဲ့ Bot (New API)
 ADMIN_ID = 8440467550 
 ADMIN_USERNAME = "@Axel_X_H"
 
 bot = telebot.TeleBot(API_TOKEN)
 order_bot = telebot.TeleBot(ORDER_BOT_TOKEN)
 
-user_orders = {}
-
-# --- ဈေးနှုန်းစာရင်းများ ---
+# --- Prices ---
 ML_PRICE = (
     "🎮 **MLBB Diamond Price List**\n"
     "━━━━━━━━━━━━━━━\n"
@@ -86,42 +84,44 @@ def callback_query(call):
         show_main_menu(call.message.chat.id)
 
     elif call.data == "order_mlbb":
-        user_orders[call.message.chat.id] = {'type': 'MLBB Diamond'}
-        msg = bot.send_message(call.message.chat.id, "🎮 **ဝယ်ယူမည့်အမျိုးအစား** နှင့် **Player ID + Zone ID** ကိုတွဲရေးပြီး တစ်ခါတည်း ပို့ပေးပါဗျ။\n\n❗❗ **Server ID ကိုသေချာစွာစစ်ဆေးပေးပါ**", parse_mode="Markdown")
-        bot.register_next_step_handler(msg, ask_receipt)
+        msg_text = (
+            "ပြေစာssနဲ့ဝယ်ယူမည့်ပစ္စည်းအမျိုးအစားserver idကိုတစ်ခါထည်းတွဲပို့ပေးပါ\n\n"
+            "❗❗ **Server idကိုသေချာစစ်ဆေးပါ\n"
+            "မှားယွင်းပါက𝘼𝙭𝙚𝙡 𝙎𝙊𝘾 𝙎𝙝𝙤𝙥မှတာဝန်ယူမည်မဟုတ်ပါ**"
+        )
+        msg = bot.send_message(call.message.chat.id, msg_text, parse_mode="Markdown")
+        bot.register_next_step_handler(msg, process_final_order)
 
     elif call.data == "order_social":
-        user_orders[call.message.chat.id] = {'type': 'Social Boost'}
-        msg = bot.send_message(call.message.chat.id, "🚀 **ဝယ်ယူမည့်အမျိုးအစား** နှင့် **Link** ကိုတွဲရေးပြီး တစ်ခါတည်း ပို့ပေးပါဗျ။", parse_mode="Markdown")
-        bot.register_next_step_handler(msg, ask_receipt)
+        msg_text = (
+            "ပြေစာssနဲ့ဝယ်ယူမည့်ပစ္စည်းအမျိုးအစားတစ်ခါတည်းတွဲပို့ပေးရမှာ\n"
+            "**Linkကို‌သေချာစစ်‌ဆေးပေးပါ**"
+        )
+        msg = bot.send_message(call.message.chat.id, msg_text, parse_mode="Markdown")
+        bot.register_next_step_handler(msg, process_final_order)
 
-def ask_receipt(message):
-    user_orders[message.chat.id]['details'] = message.text
-    msg = bot.send_message(message.chat.id, "💰 **ငွေလွဲပြေစာ (Screenshot)** ကို ပေးပို့ပေးပါဗျ။", parse_mode="Markdown")
-    bot.register_next_step_handler(msg, final_process)
-
-def final_process(message):
+def process_final_order(message):
     if message.content_type != 'photo':
-        msg = bot.send_message(message.chat.id, "⚠️ ကျေးဇူးပြု၍ ပြေစာ Screenshot (ဓာတ်ပုံ) ကို ပေးပို့ပေးပါဗျ။")
-        bot.register_next_step_handler(msg, final_process)
+        msg = bot.send_message(message.chat.id, "⚠️ ကျေးဇူးပြု၍ **ပြေစာ Screenshot ပုံတွင် စာသားတွဲရိုက်ပြီး (Caption အနေနဲ့)** တစ်ခါတည်း ပို့ပေးပါဗျ။")
+        bot.register_next_step_handler(msg, process_final_order)
         return
 
-    order = user_orders[message.chat.id]
     photo_id = message.photo[-1].file_id
+    details = message.caption if message.caption else "No details provided"
     
-    # Admin Bot ဆီ Order ပို့ခြင်း
     admin_notif = (
         f"📩 **Order အသစ်ရောက်ရှိလာပါပြီ**\n\n"
         f"👤 **Customer:** {message.from_user.first_name} (@{message.from_user.username})\n"
-        f"📦 **အမျိုးအစား:** {order['type']}\n"
-        f"📝 **အချက်အလက်:** `{order['details']}`"
+        f"📝 **Details:** {details}"
     )
     
     try:
+        # Admin Bot ဆီ ပို့ခြင်း
         order_bot.send_photo(ADMIN_ID, photo_id, caption=admin_notif, parse_mode="Markdown")
+        # User ဆီ ပြန်ပို့ခြင်း
         bot.send_message(message.chat.id, "ဝယ်ယူအားပေးမှုကိုကျေးဇူးအထူတင်ရှိပါသည်😘", parse_mode="Markdown")
-    except:
-        bot.send_message(message.chat.id, "⚠️ Admin Bot သို့ ပေးပို့ရာတွင် အမှားရှိနေပါသည်။ Admin ဆီ တိုက်ရိုက်ပြောပေးပါဗျ။")
+    except Exception as e:
+        bot.send_message(message.chat.id, "⚠️ Admin Bot သို့ ပို့၍မရပါ။ Admin ဆီ တိုက်ရိုက်ဆက်သွယ်ပါ။")
 
 if __name__ == '__main__':
     bot.infinity_polling()
