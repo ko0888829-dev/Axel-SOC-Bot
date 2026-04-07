@@ -2,8 +2,8 @@ import telebot
 from telebot import types
 
 # --- Configuration ---
-API_TOKEN = '8776335987:AAE98KHB9cD2Fpznsz93IMl5oK3oB94-D3I' # User သုံးမဲ့ Bot
-ORDER_BOT_TOKEN = '8625083982:AAFgr2_WMtyr5eQjxKUZW2H5331NyXcbVAY' # Order လက်ခံမဲ့ Bot (New API)
+API_TOKEN = '8776335987:AAE98KHB9cD2Fpznsz93IMl5oK3oB94-D3I' # User Bot
+ORDER_BOT_TOKEN = '8625083982:AAFgr2_WMtyr5eQjxKUZW2H5331NyXcbVAY' # Order Bot (Admin)
 ADMIN_ID = 8440467550 
 ADMIN_USERNAME = "@Axel_X_H"
 
@@ -56,14 +56,13 @@ def start(message):
     show_main_menu(message.chat.id)
 
 def show_main_menu(chat_id):
-    welcome_text = "👋 **Axel SOC Shop မှ ကြိုဆိုပါတယ်** ✨\n\nဝယ်ယူလိုသည့် အမျိုးအစားကို ရွေးချယ်ပါ သို့မဟုတ် Admin ကို ဆက်သွယ်ပါဗျ။"
     markup = types.InlineKeyboardMarkup(row_width=1)
     markup.add(
         types.InlineKeyboardButton("💎 MLBB Diamonds ဝယ်ယူရန်", callback_data="list_mlbb"),
         types.InlineKeyboardButton("🚀 Social Boost Services", callback_data="list_social"),
         types.InlineKeyboardButton("👨‍💻 Admin ဆက်သွယ်ရန်", url=f"https://t.me/{ADMIN_USERNAME.replace('@','')}")
     )
-    bot.send_message(chat_id, welcome_text, reply_markup=markup, parse_mode="Markdown")
+    bot.send_message(chat_id, "👋 **Axel SOC Shop မှ ကြိုဆိုပါတယ်** ✨\n\nဝယ်ယူလိုသည့် အမျိုးအစားကို ရွေးချယ်ပါ", reply_markup=markup, parse_mode="Markdown")
 
 @bot.callback_query_handler(func=lambda call: True)
 def callback_query(call):
@@ -72,56 +71,45 @@ def callback_query(call):
         markup.add(types.InlineKeyboardButton("🛒 Order တင်ရန်", callback_data="order_mlbb"))
         markup.add(types.InlineKeyboardButton("🔙 Back", callback_data="main_menu"))
         bot.edit_message_text(ML_PRICE, call.message.chat.id, call.message.message_id, reply_markup=markup, parse_mode="Markdown")
-
     elif call.data == "list_social":
         markup = types.InlineKeyboardMarkup()
         markup.add(types.InlineKeyboardButton("🛒 Order တင်ရန်", callback_data="order_social"))
         markup.add(types.InlineKeyboardButton("🔙 Back", callback_data="main_menu"))
         bot.edit_message_text(SOCIAL_PRICE, call.message.chat.id, call.message.message_id, reply_markup=markup, parse_mode="Markdown")
-
     elif call.data == "main_menu":
         bot.delete_message(call.message.chat.id, call.message.message_id)
         show_main_menu(call.message.chat.id)
-
     elif call.data == "order_mlbb":
-        msg_text = (
-            "ပြေစာssနဲ့ဝယ်ယူမည့်ပစ္စည်းအမျိုးအစားserver idကိုတစ်ခါထည်းတွဲပို့ပေးပါ\n\n"
-            "❗❗ **Server idကိုသေချာစစ်ဆေးပါ\n"
-            "မှားယွင်းပါက𝘼𝙭𝙚𝙡 𝙎𝙊𝘾 𝙎𝙝𝙤𝙥မှတာဝန်ယူမည်မဟုတ်ပါ**"
-        )
-        msg = bot.send_message(call.message.chat.id, msg_text, parse_mode="Markdown")
+        msg = bot.send_message(call.message.chat.id, "ပြေစာssနဲ့ဝယ်ယူမည့်ပစ္စည်းအမျိုးအစားserver idကိုတစ်ခါထည်းတွဲပို့ပေးပါ\n\n❗❗ **Server idကိုသေချာစစ်ဆေးပါ\nမှားယွင်းပါက𝘼𝙭𝙚𝙡 𝙎𝙊𝘾 𝙎𝙝𝙤𝙥မှတာဝန်ယူမည်မဟုတ်ပါ**")
         bot.register_next_step_handler(msg, process_final_order)
-
     elif call.data == "order_social":
-        msg_text = (
-            "ပြေစာssနဲ့ဝယ်ယူမည့်ပစ္စည်းအမျိုးအစားတစ်ခါတည်းတွဲပို့ပေးရမှာ\n"
-            "**Linkကို‌သေချာစစ်‌ဆေးပေးပါ**"
-        )
-        msg = bot.send_message(call.message.chat.id, msg_text, parse_mode="Markdown")
+        msg = bot.send_message(call.message.chat.id, "ပြေစာssနဲ့ဝယ်ယူမည့်ပစ္စည်းအမျိုးအစားတစ်ခါတည်းတွဲပို့ပေးရမှာ\n**Linkကို‌သေချာစစ်‌ဆေးပေးပါ**")
         bot.register_next_step_handler(msg, process_final_order)
 
 def process_final_order(message):
+    # User က ပုံမပို့ဘဲ စာပဲပို့ရင် ပုံပြန်တောင်းမယ်
     if message.content_type != 'photo':
-        msg = bot.send_message(message.chat.id, "⚠️ ကျေးဇူးပြု၍ **ပြေစာ Screenshot ပုံတွင် စာသားတွဲရိုက်ပြီး (Caption အနေနဲ့)** တစ်ခါတည်း ပို့ပေးပါဗျ။")
+        msg = bot.send_message(message.chat.id, "⚠️ ကျေးဇူးပြု၍ **ပြေစာပုံနဲ့အတူ စာသားကိုပါ တစ်ခါတည်းတွဲပြီး (Caption အနေနဲ့)** ပို့ပေးပါဗျ။")
         bot.register_next_step_handler(msg, process_final_order)
         return
-
-    photo_id = message.photo[-1].file_id
-    details = message.caption if message.caption else "No details provided"
     
-    admin_notif = (
+    photo_id = message.photo[-1].file_id
+    caption_text = message.caption if message.caption else "အချက်အလက်မပါဝင်ပါ"
+    
+    admin_text = (
         f"📩 **Order အသစ်ရောက်ရှိလာပါပြီ**\n\n"
         f"👤 **Customer:** {message.from_user.first_name} (@{message.from_user.username})\n"
-        f"📝 **Details:** {details}"
+        f"📝 **Details:** {caption_text}"
     )
-    
+
     try:
-        # Admin Bot ဆီ ပို့ခြင်း
-        order_bot.send_photo(ADMIN_ID, photo_id, caption=admin_notif, parse_mode="Markdown")
-        # User ဆီ ပြန်ပို့ခြင်း
-        bot.send_message(message.chat.id, "ဝယ်ယူအားပေးမှုကိုကျေးဇူးအထူတင်ရှိပါသည်😘", parse_mode="Markdown")
+        # Admin Bot API သုံးပြီး ပို့ခြင်း
+        order_bot.send_photo(ADMIN_ID, photo_id, caption=admin_text, parse_mode="Markdown")
+        # အောင်မြင်ရင် User ကို စာပြန်မယ်
+        bot.send_message(message.chat.id, "ဝယ်ယူအားပေးမှုကိုကျေးဇူးအထူတင်ရှိပါသည်😘")
     except Exception as e:
-        bot.send_message(message.chat.id, "⚠️ Admin Bot သို့ ပို့၍မရပါ။ Admin ဆီ တိုက်ရိုက်ဆက်သွယ်ပါ။")
+        # Error တက်ရင် ဘာကြောင့်လဲဆိုတာ သိအောင် Error message ပါ ပြခိုင်းထားတယ်
+        bot.send_message(message.chat.id, f"⚠️ Admin Bot သို့ ပို့၍မရပါ။ Error: {str(e)}")
 
 if __name__ == '__main__':
     bot.infinity_polling()
